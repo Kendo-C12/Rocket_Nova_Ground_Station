@@ -1,0 +1,72 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ground Station Nova</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<!-- Serial Monitor Section -->
+  <h1>🔷Serial Monitor</h1>
+  <div id="content">
+    <div id="output">ข้อมูลจะปรากฏที่นี่ (ยังไม่มีการเชื่อมต่อ)</div>
+  </div>
+  <br>
+
+<!-- Uplink Commands Section -->
+  <h2>📡 Uplink Commands</h2>
+  <select id="commandSelect">
+    <option value="ping">Ping</option>
+    <option value="wake">Wake</option>
+    <option value="on">On</option>
+    <option value="arm">Arm</option>
+    <option value="disarm">Disarm</option>
+    <option value="pad">Pad</option>
+    <option value="manual-trigger-a">Manual Trigger A</option>
+    <option value="manual-trigger-b">Manual Trigger B</option>
+    <option value="launch-override">Launch Override</option>
+    <option value="recover">Recover</option>
+    <option value="zero">Zero</option>
+    <option value="sleep">Sleep</option>
+    <option value="shutdown">Shutdown</option>
+    <option value="reboot">Reboot</option>
+    <option value="restart">Restart</option>
+  </select>
+
+  <button id="sendBtn">Send</button>
+
+<!-- Graph Section -->
+  <h1>📊 Flexible Graph Example</h1>
+  <div id="content">
+    <div id="controls">
+      <input type="text" id="xValue" placeholder="ค่าแกน X" />
+      <input type="text" id="yValue" placeholder="ค่าแกน Y" />
+      <button id="addGraphBtn">Add Graph</button>
+    </div>
+    <h2>สถานะจรวด (Rocket States)</h2>
+  <div id="stateLegend">
+    <div class="legend-item"><div class="color startup"></div> STARTUP</div>
+    <div class="legend-item"><div class="color idle_safe"></div> IDLE_SAFE</div>
+    <div class="legend-item"><div class="color armed"></div> ARMED</div>
+    <div class="legend-item"><div class="color pad_preop"></div> PAD_PREOP</div>
+    <div class="legend-item"><div class="color powered"></div> POWERED</div>
+    <div class="legend-item"><div class="color coasting"></div> COASTING</div>
+    <div class="legend-item"><div class="color drog_depl"></div> DROG_DEPL</div>
+    <div class="legend-item"><div class="color drog_desc"></div> DROG_DESC</div>
+    <div class="legend-item"><div class="color main_depl"></div> MAIN_DEPL</div>
+    <div class="legend-item"><div class="color main_desc"></div> MAIN_DESC</div>
+    <div class="legend-item"><div class="color landed"></div> LANDED</div>
+    <div class="legend-item"><div class="color rec_safe"></div> REC_SAFE</div>
+  </div>
+
+    <div id="graphsContainer">ข้อมูลจะปรากฏที่นี่ (ยังไม่มีข้อมูล)</div>
+    <canvas id="myChart" width="600" height="300"></canvas>
+  </div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

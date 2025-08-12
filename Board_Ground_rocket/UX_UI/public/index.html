@@ -45,7 +45,10 @@
       <input type="text" id="xValue" placeholder="ค่าแกน X" />
       <input type="text" id="yValue" placeholder="ค่าแกน Y" />
       <button id="addGraphBtn">Add Graph</button>
+      <br>
+      <button id="clearGraphBtn">Clear Graph</button>
     </div>
+
     <h2>สถานะจรวด (Rocket States)</h2>
   <div id="stateLegend">
     <div class="legend-item"><div class="color startup"></div> STARTUP</div>
@@ -66,7 +69,7 @@
     <canvas id="myChart" width="600" height="300"></canvas>
   </div>
 
-
+  <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

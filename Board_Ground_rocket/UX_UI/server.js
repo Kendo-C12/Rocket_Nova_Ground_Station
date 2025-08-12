@@ -2,16 +2,18 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
-const { SerialPort } = require('serialport');
-const { ReadlineParser } = require('@serialport/parser-readline');
+
 const { Server } = require('socket.io');
 const sqlite3 = require('sqlite3').verbose();
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = 3000;
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
+
+
+const PORT = 1234;
 
 app.use(express.static(path.join(__dirname, 'public')));
 

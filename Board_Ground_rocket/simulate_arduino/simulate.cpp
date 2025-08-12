@@ -1,13 +1,16 @@
 #include <Arduino.h>
 
+int time;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  time = 0;
 }
 
 void loop() {
-
-  Serial.print(3);
+  time++;
+  Serial.print(time);
   Serial.print(",");
   Serial.print("STARTUP");
   Serial.print(",");

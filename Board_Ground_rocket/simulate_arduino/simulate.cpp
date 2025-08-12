@@ -1,42 +1,44 @@
+#include <Arduino.h>
 
-#include <windows.h>
-#include <iostream>
-#include <string>
-#include <thread>
-#include <chrono>
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+}
 
-using namespace std;
+void loop() {
 
-int main() {
-    wstring portName = L"\\\\.\\COM5";
-    
-    HANDLE hSerial = CreateFileW(
-        portName.c_str(),
-        GENERIC_WRITE,
-        0,
-        0,
-        OPEN_EXISTING,
-        0,
-        0
-    );
-
-    if (hSerial == INVALID_HANDLE_VALUE) {
-        cerr << "❌ Error opening COM port" << endl;
-        return 1;
-    }
-
-    cout << "✅ Sending data to " << string(portName.begin(), portName.end()) << endl;
-
-    while (true) {
-        string data = "25.3,58,812\n";
-        DWORD bytesWritten;
-        WriteFile(hSerial, data.c_str(), data.size(), &bytesWritten, NULL);
-
-        cout << "Sent: " << data;
-
-        this_thread::sleep_for(chrono::seconds(1));
-    }
-
-    CloseHandle(hSerial);
-    return 0;
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print("STARTUP");
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print("D");
+  Serial.print(",");
+  Serial.print("D");
+  Serial.print(",");
+  Serial.print(1);
+  Serial.print(",");
+  Serial.print(1);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(2);
+  Serial.print(",");
+  Serial.println(2);
+  delay(1000); // Delay for 1 second to avoid flooding the serial output
 }

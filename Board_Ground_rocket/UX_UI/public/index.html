@@ -42,8 +42,44 @@
   <h1>📊 Flexible Graph Example</h1>
   <div id="content">
     <div id="controls">
-      <input type="text" id="xValue" placeholder="ค่าแกน X" />
-      <input type="text" id="yValue" placeholder="ค่าแกน Y" />
+      <select id="xValue">
+        <option value="time">time</option>
+        <option value="state">state</option>
+        <option value="gps_latitude">gps_latitude</option>
+        <option value="gps_longitude">gps_longitude</option>
+        <option value="altitude">altitude</option>
+        <option value="pyro_a">pyro_a</option>
+        <option value="pyro_b">pyro_b</option>
+        <option value="temperature">temperature</option>
+        <option value="pressure">pressure</option>
+        <option value="acc_x">acc_x</option>
+        <option value="acc_y">acc_y</option>
+        <option value="acc_z">acc_z</option>
+        <option value="gyro_x">gyro_x</option>
+        <option value="gyro_y">gyro_y</option>
+        <option value="gyro_z">gyro_z</option>
+        <option value="last_ack">last_ack</option>
+        <option value="last_nack">last_nack</option>
+      </select>
+      <select id="yValue">
+        <option value="time">time</option>
+        <option value="state">state</option>
+        <option value="gps_latitude">gps_latitude</option>
+        <option value="gps_longitude">gps_longitude</option>
+        <option value="altitude">altitude</option>
+        <option value="pyro_a">pyro_a</option>
+        <option value="pyro_b">pyro_b</option>
+        <option value="temperature">temperature</option>
+        <option value="pressure">pressure</option>
+        <option value="acc_x">acc_x</option>
+        <option value="acc_y">acc_y</option>
+        <option value="acc_z">acc_z</option>
+        <option value="gyro_x">gyro_x</option>
+        <option value="gyro_y">gyro_y</option>
+        <option value="gyro_z">gyro_z</option>
+        <option value="last_ack">last_ack</option>
+        <option value="last_nack">last_nack</option>
+      </select>
       <button id="addGraphBtn">Add Graph</button>
       <br>
       <button id="clearGraphBtn">Clear Graph</button>

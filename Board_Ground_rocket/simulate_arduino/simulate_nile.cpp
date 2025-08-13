@@ -1,59 +1,25 @@
 #include <Arduino.h>
 
-int time;
+// int time;
 
-void setup() {
-  Serial.begin(9600);
-  time = 0;
-}
-
-void loop() {
-  time++;
-  Serial.print(time);
-  Serial.print(",");
-  Serial.print("STARTUP");
-  Serial.print(",");
-  Serial.print(100);
-  Serial.print(",");
-  Serial.print(100);
-  Serial.print(",");
-  Serial.print(100);
-  Serial.print(",");
-  Serial.print("D");
-  Serial.print(",");
-  Serial.print("D");
-  Serial.print(",");
-  Serial.print(1);
-  Serial.print(",");
-  Serial.print(1);
-  Serial.print(",");
-  Serial.print(3);
-  Serial.print(",");
-  Serial.print(3);
-  Serial.print(",");
-  Serial.print(3);
-  Serial.print(",");
-  Serial.print(4);
-  Serial.print(",");
-  Serial.print(4);
-  Serial.print(",");
-  Serial.print(4);
-  Serial.print(",");
-  Serial.print(2);
-  Serial.print(",");
-  Serial.println(2);
-  delay(1000); // Delay for 1 second to avoid flooding the serial output
-  // Serial.println("{\"0\":1}");
-}
-
-//   void setup() {
-//   Serial.begin(115200);
-//   randomSeed(analogRead(0));
+// void setup() {
+//   Serial.begin(9600);
 // }
 
 // void loop() {
-//   // Example simulated values for the "0" list
+//   delay(1000); // Delay for 1 second to avoid flooding the serial output
+//   Serial.println("{\"0\": [1]}");
+// }
+String input;
+void setup() {
+  Serial.begin(115200);
+
+}
+
+void loop() {
+  // Example simulated values for the "0" list
 //   Serial.println(
+//     "{\"0\": [" +
 //     String(millis()) + "," +                       // Timestamp
 //     String(micros()) + "," +                       // Timestamp (microsecond)
 //     String(millis()) + "," +                       // Milliseconds since boot
@@ -87,8 +53,14 @@ void loop() {
 //     String(45.0 + random(-50, 50) / 10.0, 1) + "," + // CPU Temp
 //     String(12.0 + random(-10, 10) / 10.0, 2) + "," + // Battery Voltage
 //     "ACK," +                                        // Last ACK
-//     "NACK"                                          // Last NACK
+//     "NACK" +                                        // Last NACK
+//     "]}"                                           // Close JSON array and object
 //   );
 
-//   delay(1000);
-// }
+//   Serial.println(input);
+//   if(Serial.available()) {
+//     input = Serial.readStringUntil('\n');
+//   }
+  Serial.println("[1]");
+  delay(1000);
+}

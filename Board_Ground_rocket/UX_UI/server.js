@@ -9,44 +9,32 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const { SerialPort } = require('serialport');
-const { ReadlineParser } = require('@serialport/parser-readline');
-
-
 const PORT = 1234;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const serial = new SerialPort({ path: 'COM3', baudRate: 9600 });
-const parser = serial.pipe(new ReadlineParser({ delimiter: '\n' }));
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
+const { callbackify } = require('node:util');
+let serial;
+let parser;
 
-const db = new sqlite3.Database('sensor_data.db');
+const listPorts = callbackify(SerialPort.list);
 
-// ✅ สร้างตารางใหม่ให้ตรงกับข้อมูล 6 ค่า
-db.run(`
-  CREATE TABLE IF NOT EXISTS sensor (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    time INTEGER,
-    state TEXT,
-    gps_latitude REAL,
-    gps_longitude REAL,
-    altitude REAL,
-    pyro_a TEXT,
-    pyro_b TEXT,
-    temperature REAL,
-    pressure REAL,
-    acc_x REAL,
-    acc_y REAL,
-    acc_z REAL,
-    gyro_x REAL,
-    gyro_y REAL,
-    gyro_z REAL,
-    last_ack INTEGER,
-    last_nack INTEGER
-  )
-`);
+listPorts((err, ports) => {
+  if (err) return console.error(err);
+  if (ports.length === 0) {
+    console.log("No serial ports found!");
+    return;
+  }
 
-parser.on('data', (line) => {
+  console.log(`Opening port: ${ports[0].path}`);
+
+  serial = new SerialPort({ path: ports[0].path, baudRate: 9600 });
+  parser = serial.pipe(new ReadlineParser({ delimiter: '\n' }));
+
+  // โค้ดอื่นที่ต้องใช้ serial parser รันต่อที่นี่
+  parser.on('data', (line) => {
   const trimmed = line.trim();
   console.log('📡 Serial CSV:', trimmed);
 
@@ -140,8 +128,38 @@ io.on('connection', (socket) => {
     if (serial && serial.writable) {
       serial.write(`${msg}\n`);
     }
+    
   });
 });
+});
+
+const db = new sqlite3.Database('sensor_data.db');
+
+// ✅ สร้างตารางใหม่ให้ตรงกับข้อมูล 6 ค่า
+db.run(`
+  CREATE TABLE IF NOT EXISTS sensor (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time INTEGER,
+    state TEXT,
+    gps_latitude REAL,
+    gps_longitude REAL,
+    altitude REAL,
+    pyro_a TEXT,
+    pyro_b TEXT,
+    temperature REAL,
+    pressure REAL,
+    acc_x REAL,
+    acc_y REAL,
+    acc_z REAL,
+    gyro_x REAL,
+    gyro_y REAL,
+    gyro_z REAL,
+    last_ack INTEGER,
+    last_nack INTEGER
+  )
+`);
+
+
 
 
 server.listen(PORT, () => {

@@ -130,16 +130,11 @@ function createChart(canvas, {
         tension: 0.1,
         pointRadius: 0,
         borderWidth: 2,
-      //   segment: {
-      //     borderColor: (ctx) => {
-      //       // ctx.p0 และ ctx.p1 เป็นจุดก่อนหน้าและถัดไป (มี parsed.x / parsed.y)
-      //       const x0 = ctx.p0.parsed.x;
-      //       const x1 = ctx.p1.parsed.x;
-      //       // เอาค่ากลางของ segment มาตัดสิน
-      //       const mid = (x0 + x1) / 2;
-      //       return getColorByState(mid);  // ถ้า mid อยู่ในช่วง 1-10 -> ฟ้า, 20-30 -> แดง
-      //   }
-      // }
+        segment: {
+          borderColor: (ctx) => {
+            return ctx.p0.raw.color;
+        }
+      }
       }]
     },
     options: {
@@ -164,13 +159,13 @@ function createChart(canvas, {
 
 /* Update Chart */
 function updateChartLinear(chartIndex, chart, xVal, yVal,state) {
-  chart.data.datasets[0].data.push({"x": xVal, "y": yVal});
+  chart.data.datasets[0].data.push({"x": xVal, "y": yVal, "color": getColorByState(state)});
   if (chart.data.datasets[0].data.length > 50) {
     chart.data.datasets[0].data.shift();
   }
   chart.update();
 
-  chartData[chartIndex].data.push({"x": xVal, "y": yVal});
+  chartData[chartIndex].data.push({"x": xVal, "y": yVal, "color": getColorByState(state)});
   chartData[chartIndex].state.push(state);
   if (chartData[chartIndex].data.length > 50) {
     chartData[chartIndex].data.shift();

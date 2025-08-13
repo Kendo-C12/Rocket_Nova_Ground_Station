@@ -1,18 +1,153 @@
 #include <Arduino.h>
+#include <RadioLib.h>
+#include "nova_pin_def.h"
+#include "SPI.h"
 
-// put function declarations here:
-int myFunction(int, int);
+SPIClass spi1(PIN_SPI_MOSI1, PIN_SPI_MISO1, PIN_SPI_SCK1);
+SPISettings lora_spi_settings(4'000'000, MSBFIRST, SPI_MODE0);
+SX1262 lora = new Module(LORA_NSS, LORA_DIO1, LORA_NRST, LORA_BUSY, spi1, lora_spi_settings);
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+constexpr struct
+{
+  float center_freq = 920.800'000f; // MHz
+  float bandwidth = 125.f;          // kHz
+  uint8_t spreading_factor = 9;     // SF: 6 to 12
+  uint8_t coding_rate = 6;          // CR: 5 to 8
+  uint8_t sync_word = 0x12;         // Private SX1262
+  int8_t power = 10;                // up to 22 dBm for SX1262
+  uint16_t preamble_length = 10;
+} params;
+
+volatile bool txFlag = false; // TX trigger flag
+
+void onTxDone()
+{
+  txFlag = true;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void setup()
+{
+  Serial.begin(460800);
+  delay(2000);
+  Serial.println("Serial begin");
+
+  spi1.begin();
+  int16_t rc = lora.begin(params.center_freq,
+                          params.bandwidth,
+                          params.spreading_factor,
+                          params.coding_rate,
+                          params.sync_word,
+                          params.power,
+                          params.preamble_length,
+                          0,
+                          false);
+  if (rc != RADIOLIB_ERR_NONE)
+  {
+    Serial.print("Initialization failed! Error: ");
+    Serial.println(rc);
+    while (true)
+    {
+      delay(10);
+    }
+  }
+
+  lora.explicitHeader();
+  lora.setCRC(true);
+  lora.autoLDRO();
+  lora.setDio1Action(onTxDone);
+
+  Serial.print(F("[SX1262] Starting to listen ... "));
+  rc = lora.startReceive();
+  if (rc == RADIOLIB_ERR_NONE)
+  {
+    Serial.println(F("success!"));
+  }
+  else
+  {
+    Serial.print(F("failed, code "));
+    Serial.println(rc);
+    while (true)
+    {
+      delay(10);
+    }
+  }
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+static void handleDownlink()
+{
+  int packetSize = lora.getPacketLength();
+  if (packetSize <= 0)
+    return;
+
+  String str;
+  int16_t rc = lora.readData(str);
+  Serial.println(packetSize);
+  
+  if (rc == RADIOLIB_ERR_NONE)
+  {
+    Serial.println(F("[SX1262] Received packet!"));
+    Serial.print(F("[SX1262] Data:\t\t"));
+    Serial.println(str);
+
+    Serial.print(F("[SX1262] RSSI:\t\t"));
+    Serial.print(lora.getRSSI());
+    Serial.println(F(" dBm"));
+
+    Serial.print(F("[SX1262] SNR:\t\t"));
+    Serial.print(lora.getSNR());
+    Serial.println(F(" dB"));
+
+    Serial.print(F("[SX1262] Frequency error:\t"));
+    Serial.print(lora.getFrequencyError());
+    Serial.println(F(" Hz"));
+
+    // Example: set txFlag based on command
+    if (str == "cmd tx")
+    {
+      txFlag = true;
+      Serial.println(F("[SX1262] TX flag set!"));
+    }
+  }
+  else if (rc == RADIOLIB_ERR_CRC_MISMATCH)
+  {
+    Serial.println(F("CRC error!"));
+  }
+  else
+  {
+    Serial.print(F("readData failed, code "));
+    Serial.println(rc);
+  }
+}
+
+static void uplinkCommand() {
+  if (!Serial.available()) return;
+
+  String line = Serial.readStringUntil('\n');
+  line.trim();
+  if (line.length() == 0) return;
+
+  if (!line.startsWith("cmd ")) {
+    Serial.println(F("Ignored: Not a valid command"));
+    return;
+  }
+
+  // Use blocking TX to keep state clean
+  int16_t rc = lora.transmit(line);
+  if (rc == RADIOLIB_ERR_NONE) {
+    Serial.println(F("Transmission successful!"));
+  } else {
+    Serial.print(F("TX failed, code ")); Serial.println(rc);
+  }
+
+  // ALWAYS return to RX
+  lora.startReceive();
+}
+
+
+void loop()
+{
+  handleDownlink();
+  lora.startTransmit("Hello");
+  uplinkCommand();
+  delay(1000);
 }

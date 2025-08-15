@@ -3,29 +3,38 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 
+// Server
 const { Server } = require('socket.io');
 const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// dowload csv file
 const { Parser } = require('json2csv');
 const fs = require('fs');
 
+// Port
 const PORT = 1234;
 
+// Init page
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serial
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 const { callbackify } = require('node:util');
+const listPorts = callbackify(SerialPort.list);
 
 let serial;
 let parser;
 const now = new Date();
 
-const listPorts = callbackify(SerialPort.list);
+// data base
+const db = new sqlite3.Database('sensor_data.db');
+const db_cmd = new sqlite3.Database('cmd.db');
 
+// Find and open port
 listPorts((err, ports) => {
   if (err) return console.error(err);
   if (ports.length === 0) {
@@ -120,8 +129,8 @@ listPorts((err, ports) => {
   } else {
     const cmd = parts;
     // ✅ บันทึกลงฐานข้อมูล
-    db.run(
-      `INSERT INTO sensor (time, cmd)
+    db_cmd.run(
+      `INSERT INTO cmd (time, cmd)
        VALUES (?, ?)`,
       [
         now.toLocaleTimeString(),
@@ -158,9 +167,6 @@ io.on('connection', (socket) => {
 });
 });
 
-const db = new sqlite3.Database('sensor_data.db');
-const db_cmd = new sqlite3.Database('cmd.db');
-
 // ✅ สร้างตารางใหม่ให้ตรงกับข้อมูล 6 ค่า
 db.run(`
   CREATE TABLE IF NOT EXISTS sensor (
@@ -184,7 +190,6 @@ db.run(`
     last_nack INTEGER
   )
 `);
-
 db_cmd.run(`
   CREATE TABLE IF NOT EXISTS cmd (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -198,23 +203,32 @@ app.get('/download_sensor', (req, res) => {
   db.all("SELECT * FROM sensor", [], (err, rows) => {
     if (err) throw err;
 
+    if (rows.length === 0) {
+      console.log("No data to export");
+      return;
+    }
+
     const parser = new Parser();
     const csv = parser.parse(rows);
 
     res.header('Content-Type', 'text/csv');
-    res.attachment('data.csv');
+    res.attachment('sensor_data.csv');
     res.send(csv);
   });
 });
 app.get('/download_cmd', (req, res) => {
   db_cmd.all("SELECT * FROM cmd", [], (err, rows) => {
     if (err) throw err;
-
+    
+    if (rows.length === 0) {
+      console.log("No data to export");
+      return;
+    }
     const parser = new Parser();
     const csv = parser.parse(rows);
 
     res.header('Content-Type', 'text/csv');
-    res.attachment('data.csv');
+    res.attachment('cmd_data.csv');
     res.send(csv);
   });
 });

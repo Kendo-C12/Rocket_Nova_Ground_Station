@@ -57,6 +57,7 @@
   <div id="content">
     <div id="controls">
       <select id="xValue">
+        <option value="">xValue</option>
         <option value="time">time</option>
         <option value="state">state</option>
         <option value="gps_latitude">gps_latitude</option>
@@ -76,7 +77,7 @@
         <option value="last_nack">last_nack</option>
       </select>
       <select id="yValue">
-        <option value="time">time</option>
+        <option value="">yValue</option>
         <option value="state">state</option>
         <option value="gps_latitude">gps_latitude</option>
         <option value="gps_longitude">gps_longitude</option>
@@ -94,10 +95,20 @@
         <option value="last_ack">last_ack</option>
         <option value="last_nack">last_nack</option>
       </select>
-      <button id="addGraphBtn">Add Graph</button>
       <br>
+      <br>
+      <input id="xMx" placeholder="xMax"></input>
+      <input id="xMn" placeholder="xMin"></input>
+      <br>
+      <input id="yMx" placeholder="yMax"></input>
+      <input id="yMn" placeholder="yMin"></input>
+      <br>
+      <br>
+      <button id="addGraphBtn">Add Graph</button>
       <button id="clearGraphBtn">Clear Graph</button>
-      <input id="number_of_value">Number</input>
+      <br>
+      <br>
+      <input id="number_of_value" placeholder="Insert number of values before shift"></input>
       <button id="addNumber_of_valueBtn">sendBtn</button>
     </div>
 

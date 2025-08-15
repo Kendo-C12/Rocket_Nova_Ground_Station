@@ -8,14 +8,14 @@ let shiftValue = 50;
 const graphsContainer = document.getElementById('graphsContainer');
 const addGraphBtn = document.getElementById('addGraphBtn');
 
-const key_state = [STARTUP,IDLE_SAFE,ARMED,PAD_PREOP,POWERED,COASTING,DROG_DEPL,DROG_DESC,MAIN_DEPL,MAIN_DESC,LANDED,REC_SAFE]
+const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
 const key_pyro = [];
 
-/* Lenght text */
-function lenght_text(label){
+/* Length text */
+function length_text(label){
   switch(label){
-    case 'state': return key_state.length(); 
-    case 'pyro' : return key_pyro.length();
+    case 'state': return key_state.length; 
+    case 'pyro' : return key_pyro.length;
   }
   return 0;
 }
@@ -24,12 +24,12 @@ function lenght_text(label){
 function text_to_key(label,text){
   switch(label){
     case 'state' :
-      for(let i = 0;i < key_state.length();i++){
+      for(let i = 0;i < key_state.length;i++){
         if(key_state[i].toLowerCase() == text) { return i }
       }
       break;
     case 'pyro_a' || 'pyro_b' :
-      for(let i = 0;i < key_pyro.lenght();i++){
+      for(let i = 0;i < key_pyro.length;i++){
         if(key_pyro[i].toLowerCase() == text) { return i }
       }
       break;
@@ -153,10 +153,13 @@ function createChart(canvas, {
   borderColor = 'rgb(75, 192, 192)', 
   yMin = 0, 
   yMax = null,
+  xMin = 0,
+  xMax = null,
   xType = 'category', // หรือ 'time' ถ้าใช้เวลาจริงๆ
   xTimeFormat = null  // ตัวเลือก format สำหรับแกนเวลา เช่น 'HH:mm:ss'
   }) 
 {
+  console.log(xLabel, yLabel, xMin, xMax, yMin, yMax);
   canvas.width = 600;
   canvas.height = 300;
   graphsContainer.appendChild(canvas);
@@ -165,14 +168,22 @@ function createChart(canvas, {
   let chart;
   if(isText(xLabel) || isText(yLabel)){
     chart = new Chart(ctx, {
-      type: `${xLabel} and ${yLabel}`,
+      type: 'line',
       data: {
+        labels: [],
         datasets: [{
-          label: '${x}',
-          data: data,
-          borderColor: 'blue',
-          stepped: true,
-          fill: false
+          label: `${xLabel} and ${yLabel}`,
+          data: [],
+          fill: false,
+          borderColor: borderColor,
+          tension: 0.1,
+          pointRadius: 0,
+          borderWidth: 2,
+          segment: {
+            borderColor: (ctx) => {
+              return ctx.p0.raw.color;
+          }
+        }
         }]
       },
       options: {
@@ -184,10 +195,10 @@ function createChart(canvas, {
           },
           y: {
             ticks: {
-              callback: (value) => key_to_text[ylabel,value], // Show text instead of numbers
+              callback: (value) => key_to_text[yLabel,value], // Show text instead of numbers
             },
             min: 0,
-            max: lenght_text(yLabel) - 1,
+            max: length_text(yLabel) - 1,
             stepSize: 1
           }
         }
@@ -216,17 +227,21 @@ function createChart(canvas, {
         }]
       },
       options: {
-        animation: false,
+        animation: true,
         responsive: true,
         scales: {
           x: {
               title: { display: true, text: xLabel },
-              type: 'linear'
+              type: 'linear',
+              min: xMin,
+              max: xMax
           },
         
           y: {
               title: { display: true, text: yLabel },
-              beginAtZero: true
+              beginAtZero: true,
+              min: yMin,
+              max: yMax
           }
         }
       }
@@ -239,14 +254,14 @@ function createChart(canvas, {
 /* Update Chart */
 function updateChartLinear(chartIndex, chart, xVal, yVal,state) {
   chart.data.datasets[0].data.push({"x": xVal, "y": yVal, "color": getColorByState(state)});
-  if (chart.data.datasets[0].data.length > 50) {
+  while (chart.data.datasets[0].data.length > shiftValue) {
     chart.data.datasets[0].data.shift();
   }
   chart.update();
 
   chartData[chartIndex].data.push({"x": xVal, "y": yVal, "color": getColorByState(state)});
   chartData[chartIndex].state.push(state);
-  if (chartData[chartIndex].data.length > 50) {
+  while (chartData[chartIndex].data.length > shiftValue) {
     chartData[chartIndex].data.shift();
   }
 }
@@ -260,7 +275,21 @@ document.getElementById('addGraphBtn').addEventListener('click', () => {
   const x = document.getElementById('xValue').value;
   const y = document.getElementById('yValue').value;
 
-  createChart(container,{xLabel: x, yLabel: y});
+  if(x === '' || y === '') {
+    alert('กรุณาเลือกค่า x และ y');
+    return;
+  }
+
+  const xMn = parseFloat(document.getElementById('xMn').value);
+  const xMx = parseFloat(document.getElementById('xMx').value);
+  const yMn = parseFloat(document.getElementById('yMn').value);
+  const yMx = parseFloat(document.getElementById('yMx').value);
+
+  createChart(container,{xLabel: x, yLabel: y,xMin : xMn, xMax : xMx, yMin : yMn, yMax : yMx});
+  document.getElementById('xMn').value = '';
+  document.getElementById('xMx').value = '';
+  document.getElementById('yMn').value = '';
+  document.getElementById('yMx').value = '';
 
   n_chart++;
   chartData.push({"name_x": x, "name_y": y, "data": [], "state": []});
@@ -274,7 +303,8 @@ document.getElementById('clearGraphBtn').addEventListener('click', () => {
 
 /* Number of value before shift */
 document.getElementById('addNumber_of_valueBtn').addEventListener('click', () => {
-  shiftValue = document.getElementById('xValue').value
+  shiftValue = document.getElementById('number_of_value').value;
+  document.getElementById('number_of_value').value = '';
 });
 
 /* Serial Data : Flexible monitor and chart update */

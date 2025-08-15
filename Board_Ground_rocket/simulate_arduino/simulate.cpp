@@ -8,6 +8,10 @@ void setup() {
 }
 
 void loop() {
+  if(Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    Serial.println("Received: " + input);
+  }
   time++;
   Serial.print(time);
   Serial.print(",");

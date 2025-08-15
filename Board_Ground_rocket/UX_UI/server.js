@@ -9,6 +9,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const { Parser } = require('json2csv');
+const fs = require('fs');
+
 const PORT = 1234;
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -16,8 +19,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 const { callbackify } = require('node:util');
+
 let serial;
 let parser;
+const now = new Date();
 
 const listPorts = callbackify(SerialPort.list);
 
@@ -39,7 +44,6 @@ listPorts((err, ports) => {
   console.log('📡 Serial CSV:', trimmed);
 
   const parts = trimmed.split(',');
-
   if (parts.length === 17) {
     const [
       time,
@@ -114,7 +118,28 @@ listPorts((err, ports) => {
       last_nack: parseInt(last_nack, 10)
     });
   } else {
-    console.warn('⚠️ ข้อมูลไม่ครบ 17 ค่า:', parts);
+    const cmd = parts;
+    // ✅ บันทึกลงฐานข้อมูล
+    db.run(
+      `INSERT INTO sensor (time, cmd)
+       VALUES (?, ?)`,
+      [
+        now.toLocaleTimeString(),
+        cmd
+      ],
+      (err) => {
+        if (err) {
+          console.error('❌ DB Error:', err.message);
+        } else {
+          console.log('✅ Inserted:', parts);
+        }
+      }
+    );
+
+    // ✅ ส่งให้หน้าเว็บ
+    io.emit('cmd-data', {
+      cmd : cmd
+    });
   }
 });
 
@@ -134,6 +159,7 @@ io.on('connection', (socket) => {
 });
 
 const db = new sqlite3.Database('sensor_data.db');
+const db_cmd = new sqlite3.Database('cmd.db');
 
 // ✅ สร้างตารางใหม่ให้ตรงกับข้อมูล 6 ค่า
 db.run(`
@@ -159,8 +185,39 @@ db.run(`
   )
 `);
 
+db_cmd.run(`
+  CREATE TABLE IF NOT EXISTS cmd (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time TEXT,
+    cmd TEXT
+  )
+`);
 
+/* dowload data */
+app.get('/download_sensor', (req, res) => {
+  db.all("SELECT * FROM sensor", [], (err, rows) => {
+    if (err) throw err;
 
+    const parser = new Parser();
+    const csv = parser.parse(rows);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('data.csv');
+    res.send(csv);
+  });
+});
+app.get('/download_cmd', (req, res) => {
+  db_cmd.all("SELECT * FROM cmd", [], (err, rows) => {
+    if (err) throw err;
+
+    const parser = new Parser();
+    const csv = parser.parse(rows);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('data.csv');
+    res.send(csv);
+  });
+});
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

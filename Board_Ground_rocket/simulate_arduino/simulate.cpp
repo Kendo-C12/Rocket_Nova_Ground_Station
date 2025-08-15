@@ -42,9 +42,45 @@ void loop() {
   Serial.print(2);
   Serial.print(",");
   Serial.println(2);
-  delay(1000); // Delay for 1 second to avoid flooding the serial output
-  // Serial.println("{\"0\":1}");
+  delay(1000);
+  time++;
+  Serial.print(time);
+  Serial.print(",");
+  Serial.print("REC_SAFE");
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print(100);
+  Serial.print(",");
+  Serial.print("D");
+  Serial.print(",");
+  Serial.print("D");
+  Serial.print(",");
+  Serial.print(1);
+  Serial.print(",");
+  Serial.print(1);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(3);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(4);
+  Serial.print(",");
+  Serial.print(2);
+  Serial.print(",");
+  Serial.println(2);
+  delay(1000);
 }
+
+
 
 //   void setup() {
 //   Serial.begin(115200);

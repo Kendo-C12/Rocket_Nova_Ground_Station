@@ -3,9 +3,49 @@ const socket = io();
 let charts = [];
 let chartData = [];
 let n_chart = 0;
+let shiftValue = 50;
 
 const graphsContainer = document.getElementById('graphsContainer');
 const addGraphBtn = document.getElementById('addGraphBtn');
+
+const key_state = [STARTUP,IDLE_SAFE,ARMED,PAD_PREOP,POWERED,COASTING,DROG_DEPL,DROG_DESC,MAIN_DEPL,MAIN_DESC,LANDED,REC_SAFE]
+const key_pyro = [];
+
+/* Lenght text */
+function lenght_text(label){
+  switch(label){
+    case 'state': return key_state.length(); 
+    case 'pyro' : return key_pyro.length();
+  }
+  return 0;
+}
+
+/* Text to Key */
+function text_to_key(label,text){
+  switch(label){
+    case 'state' :
+      for(let i = 0;i < key_state.length();i++){
+        if(key_state[i].toLowerCase() == text) { return i }
+      }
+      break;
+    case 'pyro_a' || 'pyro_b' :
+      for(let i = 0;i < key_pyro.lenght();i++){
+        if(key_pyro[i].toLowerCase() == text) { return i }
+      }
+      break;
+  }
+}
+/* Key to Text */
+function key_to_text(label,key){
+  switch(label){
+    case 'state' :
+      return key_state[key];
+      break;
+    case 'pyro_a' || 'pyro_b' :
+      return key_pyro[key];
+      break;
+  }
+}
 
 /* Value From Key*/
 function getValueFromKey(key, data) {
@@ -15,7 +55,7 @@ function getValueFromKey(key, data) {
       value = parseInt(data.time, 10);
       break;
     case "state":
-      value = data.state;
+      value = text_to_key('state',data.state);
       break;
     case "gps_latitude":
       value = parseFloat(data.gps_latitude);
@@ -27,10 +67,10 @@ function getValueFromKey(key, data) {
       value = parseFloat(data.altitude);
       break;
     case "pyro_a":
-      value = data.pyro_a;
+      value = text_to_key('pyro',data.pyro_a);
       break;
     case "pyro_b":
-      value = data.pyro_b;
+      value = text_to_key('pyro',data.pyro_b);
       break;
     case "temperature":
       value = parseFloat(data.temperature);
@@ -84,6 +124,11 @@ function getColorByState(state) {
     default:            return '#000000'; // สีดำถ้าไม่ตรงกับ state ใดๆ
   }
 }
+/* Is value's label is text ot not */
+function isText(label){
+  if(label == 'state' || label == 'pyro_a' || label == 'pyro_b') { return 1; }
+  return 0;
+}
 
 /* localStorage */
 function saveChartData(key,data) {
@@ -117,42 +162,76 @@ function createChart(canvas, {
   graphsContainer.appendChild(canvas);
 
   const ctx = canvas.getContext('2d');
-
-  const chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: yLabel,
-        data: [],
-        fill: false,
-        borderColor: borderColor,
-        tension: 0.1,
-        pointRadius: 0,
-        borderWidth: 2,
-        segment: {
-          borderColor: (ctx) => {
-            return ctx.p0.raw.color;
+  let chart;
+  if(isText(xLabel) || isText(yLabel)){
+    chart = new Chart(ctx, {
+      type: `${xLabel} and ${yLabel}`,
+      data: {
+        datasets: [{
+          label: '${x}',
+          data: data,
+          borderColor: 'blue',
+          stepped: true,
+          fill: false
+        }]
+      },
+      options: {
+        parsing: false,
+        scales: {
+          x: {
+              title: { display: true, text: xLabel },
+              type: 'linear'
+          },
+          y: {
+            ticks: {
+              callback: (value) => key_to_text[ylabel,value], // Show text instead of numbers
+            },
+            min: 0,
+            max: lenght_text(yLabel) - 1,
+            stepSize: 1
+          }
         }
       }
-      }]
-    },
-    options: {
-      animation: false,
-      responsive: true,
-      scales: {
-        x: {
-            title: { display: true, text: xLabel },
-            type: 'linear'
-        },
-      
-        y: {
-            title: { display: true, text: yLabel },
-            beginAtZero: true
+    });
+  }
+  else
+  {  
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: `${xLabel} and ${yLabel}`,
+          data: [],
+          fill: false,
+          borderColor: borderColor,
+          tension: 0.1,
+          pointRadius: 0,
+          borderWidth: 2,
+          segment: {
+            borderColor: (ctx) => {
+              return ctx.p0.raw.color;
+          }
+        }
+        }]
+      },
+      options: {
+        animation: false,
+        responsive: true,
+        scales: {
+          x: {
+              title: { display: true, text: xLabel },
+              type: 'linear'
+          },
+        
+          y: {
+              title: { display: true, text: yLabel },
+              beginAtZero: true
+          }
         }
       }
-    }
-  });
+    });
+  }
   charts.push({"chart":chart, "x": xLabel, "y": yLabel});
   return chart
 }
@@ -193,6 +272,11 @@ document.getElementById('clearGraphBtn').addEventListener('click', () => {
   n_chart = 0;
 });
 
+/* Number of value before shift */
+document.getElementById('addNumber_of_valueBtn').addEventListener('click', () => {
+  shiftValue = document.getElementById('xValue').value
+});
+
 /* Serial Data : Flexible monitor and chart update */
 socket.on('serial-data', (data) => {
   console.log('Received data:', data);
@@ -207,12 +291,24 @@ socket.on('serial-data', (data) => {
   for(let i = 0; i < charts.length; i++) {
     const chart = charts[i]["chart"];
     const xValue = getValueFromKey(charts[i]["x"], data);
-    const yValue = getValueFromKey(charts[i]["y"], data);
+    let yValue;
+    if(isText(yValue))
+      yValue = getValueFromKey(charts[i]["y"], data);
+    else{
+      yValue = getValueFromKey(charts[i]["y"], data);
+    }
     console.log(`Updating chart ${i} with x: ${xValue}, y: ${yValue}`);
     updateChartLinear(i, chart, xValue, yValue, data.state);
 
     saveChartData(`chartData_${i}`, chartData[i]);
   }
+});
+
+/* Cmd data */
+socket.on('cmd-data', (data) => {
+  console.log('Received command data:', data);
+  document.getElementById('output_cmd').textContent =
+    `${data.cmd}`;
 });
 
 /* Load Chart Data */

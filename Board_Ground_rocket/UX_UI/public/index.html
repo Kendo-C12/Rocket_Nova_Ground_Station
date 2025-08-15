@@ -9,12 +9,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<!-- Serial Monitor Section -->
-  <h1>🔷Serial Monitor</h1>
+<!-- Value Monitor Section -->
+  <h1>🔷Value Monitor</h1>
   <div id="content">
     <div id="output">ข้อมูลจะปรากฏที่นี่ (ยังไม่มีการเชื่อมต่อ)</div>
   </div>
   <br>
+<!-- Command Monitor Section -->
+  <h1>🔷Command Monitor</h1>
+  <div id="content">
+    <div id="output_cmd">ข้อมูลจะปรากฏที่นี่ (ยังไม่มีการเชื่อมต่อ)</div>
+  </div>
+  <br>
+
+<!-- Download section -->
+<a href="/download_sensor">
+  <button>Download Sensor Data</button>
+</a>
+<a href="/download_cmd">
+  <button>Download Command Data</button>
+</a>
 
 <!-- Uplink Commands Section -->
   <h2>📡 Uplink Commands</h2>
@@ -83,6 +97,8 @@
       <button id="addGraphBtn">Add Graph</button>
       <br>
       <button id="clearGraphBtn">Clear Graph</button>
+      <input id="number_of_value">Number</input>
+      <button id="addNumber_of_valueBtn">sendBtn</button>
     </div>
 
     <h2>สถานะจรวด (Rocket States)</h2>

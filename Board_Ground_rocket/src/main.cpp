@@ -111,10 +111,10 @@ static void uplinkCommand() {
   line.trim();
   if (line.length() == 0) return;
 
-  if (!line.startsWith("cmd ")) {
-    Serial.println(F("Ignored: Not a valid command"));
-    return;
-  }
+  // if (!line.startsWith("cmd ")) {
+  //   Serial.println(F("Ignored: Not a valid command"));
+  //   return;
+  // }
 
   // Use blocking TX to keep state clean
   int16_t rc = lora.transmit(line);

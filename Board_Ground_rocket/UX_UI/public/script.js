@@ -301,6 +301,14 @@ document.getElementById('clearGraphBtn').addEventListener('click', () => {
   n_chart = 0;
 });
 
+/* Reset database */
+document.getElementById('resetDbBtn').addEventListener('click', () => {
+  fetch('/reset-db', { method: 'POST' })
+    .then(res => res.text())
+    .then(msg => alert(msg))
+    .catch(err => alert('Error: ' + err));
+});
+
 /* Number of value before shift */
 document.getElementById('addNumber_of_valueBtn').addEventListener('click', () => {
   shiftValue = document.getElementById('number_of_value').value;

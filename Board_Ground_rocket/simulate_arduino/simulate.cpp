@@ -3,7 +3,7 @@
 int time;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   time = 0;
 }
 

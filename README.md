@@ -2,21 +2,19 @@ Require software
 - Node.js
 - npm
 
-Feature                         Work or not
-- Monitor                       Y
-- Uplink                        Y
+Feature
+- Monitor                       
+- Uplink                        
 - Chart                         
-        Text Chart              N
-        Number Chart            Y
-        Add and Clear Chart     Y       
+        Number Chart            
+        Add and Clear Chart            
 - Database
-        Sensor db               Y
-        Cmd db                  Y
-        Reset db                N
+        Sensor db               
+        Cmd db                  
 
 How to use
 1. change directory to ../BOARD_GROUND_ROCKET/UX_UI         :        cd UX_UI
-2. hosting                                                  :        node seerver.js
+2. hosting                                                  :        node server.js
 3. go to http://localhost:1234/
 
 Warning

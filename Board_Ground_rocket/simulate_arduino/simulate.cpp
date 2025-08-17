@@ -82,6 +82,19 @@ void loop() {
   Serial.print(",");
   Serial.println(2);
   delay(1000);
+  // Serial.print(4);
+  // Serial.print(",");
+  // Serial.print(4);
+  // Serial.print(",");
+  // Serial.print(4);
+  // Serial.print(",");
+  // Serial.print(4);
+  // Serial.print(",");
+  // Serial.print(2);
+  // Serial.print(",");
+  // Serial.print(2);
+  // Serial.print(",");
+  // Serial.println(2);
 }
 
 

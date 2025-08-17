@@ -117,7 +117,7 @@ static void uplinkCommand() {
   // }
 
   // Use blocking TX to keep state clean
-  int16_t rc = lora.transmit(line);
+  int16_t rc = lora.transmit("cmd " + line);
   if (rc == RADIOLIB_ERR_NONE) {
     Serial.println(F("Transmission successful!"));
   } else {

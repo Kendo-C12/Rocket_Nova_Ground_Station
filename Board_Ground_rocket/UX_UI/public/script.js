@@ -8,6 +8,8 @@ let shiftValue = 50;
 const graphsContainer = document.getElementById('graphsContainer');
 const addGraphBtn = document.getElementById('addGraphBtn');
 
+const table = document.getElementById("dataTable");
+
 const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
 const key_pyro = [];
 
@@ -340,6 +342,15 @@ socket.on('serial-data', (data) => {
 
     saveChartData(`chartData_${i}`, chartData[i]);
   }
+
+  /* Data Table */
+  table.innerHTML = ""; // ล้างตารางเก่า
+  Object.entries(data).forEach(([key, value]) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<th>${key}</th><td>${value}</td>`;
+    table.appendChild(tr);
+  });
+
 });
 
 /* Cmd data */
@@ -372,5 +383,5 @@ window.onload = () => {
     localStorage.clear();
     alert('Local storage cleared!');
   });
-  
 };
+

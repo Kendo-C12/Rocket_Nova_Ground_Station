@@ -2,10 +2,14 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 40px auto;
-  max-width: 700px;
+  max-width: 1800px;
   background-color: #f9fafb;
   color: #222;
   text-align: center;
+
+  display: flex;
+  gap: 80px;
+  align-items: flex-start;
 }
 
 h1 {
@@ -16,7 +20,7 @@ h1 {
 #content {
   background: white;
   border-radius: 8px;
-  padding: 20px;
+  padding: 40px;
   box-shadow: 0 0 12px rgb(0 0 0 / 0.1);
 }
 
@@ -34,7 +38,7 @@ canvas {
 }
 
 #controls {
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
 #controls input {
@@ -106,4 +110,21 @@ canvas {
 }
 #commandSelect option {
   padding: 5px;
+}
+
+.left-panel {
+  flex-basis: 25%;   /* กำหนดฝั่งซ้าย 30% */
+  max-width: 25%;    /* ไม่ให้กินเกิน */
+  text-align: left;
+}
+
+.right-panel {
+  flex-basis: 75%;   /* กำหนดฝั่งขวา 80% */
+  max-width: 75%;
+  text-align: center;
+}
+
+.separator {
+  width: 2px;
+  background-color: #ccc; /* สีเส้น */
 }

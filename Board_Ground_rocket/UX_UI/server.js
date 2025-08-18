@@ -90,9 +90,10 @@ waitForPort().then(port => {
 
     // ✅ บันทึกลงฐานข้อมูล
     db.run(
-      `INSERT INTO sensor (times, time, state, gps_latitude, gps_longitude, altitude, pyro_a, pyro_b, temperature, pressure, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, last_ack, last_nack)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO sensor (counter, times, time, state, gps_latitude, gps_longitude, altitude, pyro_a, pyro_b, temperature, pressure, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, last_ack, last_nack)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        parseInt(counter, 10),
         now.toLocaleTimeString(),
         parseInt(time, 10),
         state,
@@ -123,6 +124,7 @@ waitForPort().then(port => {
 
     // ✅ ส่งให้หน้าเว็บ
     io.emit('serial-data', {
+      counter: parseInt(counter, 10),
       time: parseInt(time, 10),
       state,
       gps_latitude: parseFloat(gps_latitude),
@@ -185,7 +187,7 @@ io.on('connection', (socket) => {
 // ✅ สร้างตารางใหม่ให้ตรงกับข้อมูล 6 ค่า
 db.run(`
   CREATE TABLE IF NOT EXISTS sensor (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    counter INTEGER,
     times TEXT,
     time INTEGER,
     state TEXT,

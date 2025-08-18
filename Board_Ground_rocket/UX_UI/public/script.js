@@ -12,7 +12,7 @@ const table = document.getElementById("dataTable");
 
 const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
 const key_pyro = [];
-const allLabel = ["time","state","gps_latitude","gps_longitude","altitude","pyro_a","pyro_b","temperature","pressure","acc_x","acc_y","acc_z","gyro_x","gyro_y","gyro_z","last_ack","last_nack"];
+const allLabel = ["counter","time","state","gps_latitude","gps_longitude","altitude","pyro_a","pyro_b","temperature","pressure","acc_x","acc_y","acc_z","gyro_x","gyro_y","gyro_z","last_ack","last_nack"];
 /* Length text */
 function length_text(label){
   switch(label){
@@ -53,6 +53,9 @@ function key_to_text(label,key){
 function getValueFromKey(key, data) {
   let value;
   switch (key) {
+    case "counter":
+      value = parseInt(data.counter, 10);
+      break;
     case "time":
       value = parseInt(data.time, 10);
       break;
@@ -330,7 +333,7 @@ document.getElementById('addNumber_of_valueBtn').addEventListener('click', () =>
 socket.on('serial-data', (data) => {
   console.log('Received data:', data);
   document.getElementById('output').textContent =
-    `time: ${data.time}s | state: ${data.state} | GPS: (${data.gps_latitude}, ${data.gps_longitude}) | altitude: ${data.altitude}m | pyro: (${data.pyro_a}, ${data.pyro_b}) | temperature: ${data.temperature}°C | pressure: ${data.pressure}hPa | acc: (${data.acc_x}, ${data.acc_y}, ${data.acc_z}) | gyro: (${data.gyro_x}, ${data.gyro_y}, ${data.gyro_z}) | last_ack: ${data.last_ack} | last_nack: ${data.last_nack}`;
+    `counter: ${data.counter} | time: ${data.time}s | state: ${data.state} | GPS: (${data.gps_latitude}, ${data.gps_longitude}) | altitude: ${data.altitude}m | pyro: (${data.pyro_a}, ${data.pyro_b}) | temperature: ${data.temperature}°C | pressure: ${data.pressure}hPa | acc: (${data.acc_x}, ${data.acc_y}, ${data.acc_z}) | gyro: (${data.gyro_x}, ${data.gyro_y}, ${data.gyro_z}) | last_ack: ${data.last_ack} | last_nack: ${data.last_nack}`;
 
 
   console.log(`Chart update: ${n_chart} charts`);

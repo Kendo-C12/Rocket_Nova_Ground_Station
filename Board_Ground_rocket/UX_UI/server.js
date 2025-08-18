@@ -34,17 +34,30 @@ const now = new Date();
 let db = new sqlite3.Database('sensor_data.db');
 let db_cmd = new sqlite3.Database('cmd.db');
 
+// Find port
+function waitForPort() {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      SerialPort.list().then(ports => {
+        if (ports.length > 0) {
+          clearInterval(interval);
+          console.log("Found port:", ports[0].path);
+          resolve(ports[0]);
+        } else {
+          console.log("Waiting for serial port...");
+        }
+      });
+    }, 1000); // เช็คทุก 1 วิ
+  });
+}
+
 // Find and open port
-listPorts((err, ports) => {
+waitForPort().then(port => {
+  console.log(`Opening port: ${port.path}`);
+
+  serial = new SerialPort({ path: port.path, baudRate: 115200 });
+
   if (err) return console.error(err);
-  if (ports.length === 0) {
-    console.log("No serial ports found!");
-    return;
-  }
-
-  console.log(`Opening port: ${ports[0].path}`);
-
-  serial = new SerialPort({ path: ports[0].path, baudRate: 115200 });
   parser = serial.pipe(new ReadlineParser({ delimiter: '\n' }));
 
   // โค้ดอื่นที่ต้องใช้ serial parser รันต่อที่นี่
@@ -53,8 +66,9 @@ listPorts((err, ports) => {
   console.log('📡 Serial CSV:', trimmed);
 
   const parts = trimmed.split(',');
-  if (parts.length === 17) {
+  if (parts.length === 18) {
     const [
+      counter,
       time,
       state,
       gps_latitude,

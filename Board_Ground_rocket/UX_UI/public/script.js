@@ -12,7 +12,7 @@ const table = document.getElementById("dataTable");
 
 const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
 const key_pyro = [];
-
+const allLabel = ["time","state","gps_latitude","gps_longitude","altitude","pyro_a","pyro_b","temperature","pressure","acc_x","acc_y","acc_z","gyro_x","gyro_y","gyro_z","last_ack","last_nack"];
 /* Length text */
 function length_text(label){
   switch(label){
@@ -295,6 +295,15 @@ document.getElementById('addGraphBtn').addEventListener('click', () => {
 
   n_chart++;
   chartData.push({"name_x": x, "name_y": y, "data": [], "state": []});
+});
+
+/* Auto add graph */
+document.getElementById('autoAddGraphBtn').addEventListener('click', () => {
+  for(let i = 0; i < allLabel.length; i++) {
+    for(let j = 0; j < allLabel.length; j++) {
+      createChart(container,{xLabel: allLabel[i], yLabel: allLabel[j]});
+    }
+  }
 });
 
 /* Clear Chart */

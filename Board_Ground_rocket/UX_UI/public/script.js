@@ -265,8 +265,11 @@ document.getElementById('autoAddGraphBtn').addEventListener('click', () => {
   for(let i = 0; i < allLabel.length; i++) {
     for(let j = 0; j < allLabel.length; j++) {
       if(i === j) continue; // ไม่ต้องสร้างกราฟที่ x = y
-      if(isText(allLabel[i])) continue;
+      if(isText(allLabel[i]) || isText(allLabel[j])) continue;
+      const container = document.createElement('canvas');
+      container.id = `chart${charts.length}`;
       createChart(container,{xLabel: allLabel[i], yLabel: allLabel[j]});
+      chartData.push({"name_x": allLabel[i], "name_y": allLabel[j], "data": [], "state": []});
     }
   }
 });

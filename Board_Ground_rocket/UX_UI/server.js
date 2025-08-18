@@ -33,6 +33,7 @@ const now = new Date();
 // data base
 let db = new sqlite3.Database('sensor_data.db');
 let db_cmd = new sqlite3.Database('cmd.db');
+let db_txData = new sqlite3.Database('txData.db');
 
 // Find port
 function waitForPort() {
@@ -66,50 +67,29 @@ waitForPort().then(port => {
   console.log('📡 Serial CSV:', trimmed);
 
   const parts = trimmed.split(',');
-  if (parts.length === 18) {
+  if (parts.length === 7) {
     const [
       counter,
-      time,
       state,
       gps_latitude,
       gps_longitude,
-      altitude,
-      pyro_a,
-      pyro_b,
-      temperature,
-      pressure,
-      acc_x,
-      acc_y,
-      acc_z,
-      gyro_x,
-      gyro_y,
-      gyro_z,
+      apogee,
       last_ack,
       last_nack
     ] = parts;
 
     // ✅ บันทึกลงฐานข้อมูล
     db.run(
-      `INSERT INTO sensor (counter, times, time, state, gps_latitude, gps_longitude, altitude, pyro_a, pyro_b, temperature, pressure, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, last_ack, last_nack)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO sensor (counter, times, state, gps_latitude, gps_longitude, apogee, last_ack, last_nack)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         parseInt(counter, 10),
         now.toLocaleTimeString(),
-        parseInt(time, 10),
         state,
         parseFloat(gps_latitude),
         parseFloat(gps_longitude),
-        parseFloat(altitude),
-        pyro_a,
-        pyro_b,
-        parseFloat(temperature),
-        parseFloat(pressure),
-        parseFloat(acc_x),
-        parseFloat(acc_y),
-        parseFloat(acc_z),
-        parseFloat(gyro_x),
-        parseFloat(gyro_y),
-        parseFloat(gyro_z),
+        parseFloat(apogee),
+
         parseInt(last_ack, 10),
         parseInt(last_nack, 10)
       ],
@@ -125,21 +105,10 @@ waitForPort().then(port => {
     // ✅ ส่งให้หน้าเว็บ
     io.emit('serial-data', {
       counter: parseInt(counter, 10),
-      time: parseInt(time, 10),
-      state,
+      state: state,
       gps_latitude: parseFloat(gps_latitude),
       gps_longitude: parseFloat(gps_longitude),
       altitude: parseFloat(altitude),
-      pyro_a,
-      pyro_b,
-      temperature: parseFloat(temperature),
-      pressure: parseFloat(pressure),
-      acc_x: parseFloat(acc_x),
-      acc_y: parseFloat(acc_y),
-      acc_z: parseFloat(acc_z),
-      gyro_x: parseFloat(gyro_x),
-      gyro_y: parseFloat(gyro_y),
-      gyro_z: parseFloat(gyro_z),
       last_ack: parseInt(last_ack, 10),
       last_nack: parseInt(last_nack, 10)
     });
@@ -188,22 +157,11 @@ io.on('connection', (socket) => {
 db.run(`
   CREATE TABLE IF NOT EXISTS sensor (
     counter INTEGER,
-    times TEXT,
-    time INTEGER,
+    time TEXT,
     state TEXT,
     gps_latitude REAL,
     gps_longitude REAL,
-    altitude REAL,
-    pyro_a TEXT,
-    pyro_b TEXT,
-    temperature REAL,
-    pressure REAL,
-    acc_x REAL,
-    acc_y REAL,
-    acc_z REAL,
-    gyro_x REAL,
-    gyro_y REAL,
-    gyro_z REAL,
+    apogee REAL,
     last_ack INTEGER,
     last_nack INTEGER
   )
@@ -266,23 +224,11 @@ app.post('/reset-db', (req, res) => {
 
   db.run(`
     CREATE TABLE IF NOT EXISTS sensor (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      times TEXT,
-      time INTEGER,
+      counter INTEGER,
       state TEXT,
       gps_latitude REAL,
       gps_longitude REAL,
-      altitude REAL,
-      pyro_a TEXT,
-      pyro_b TEXT,
-      temperature REAL,
-      pressure REAL,
-      acc_x REAL,
-      acc_y REAL,
-      acc_z REAL,
-      gyro_x REAL,
-      gyro_y REAL,
-      gyro_z REAL,
+      apogee REAL,
       last_ack INTEGER,
       last_nack INTEGER
     )

@@ -11,13 +11,11 @@ const addGraphBtn = document.getElementById('addGraphBtn');
 const table = document.getElementById("dataTable");
 
 const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
-const key_pyro = [];
-const allLabel = ["counter","time","state","gps_latitude","gps_longitude","altitude","pyro_a","pyro_b","temperature","pressure","acc_x","acc_y","acc_z","gyro_x","gyro_y","gyro_z","last_ack","last_nack"];
+const allLabel = ["counter","state","gps_latitude","gps_longitude","apogee","last_ack","last_nack"];
 /* Length text */
 function length_text(label){
   switch(label){
     case 'state': return key_state.length; 
-    case 'pyro' : return key_pyro.length;
   }
   return 0;
 }
@@ -28,11 +26,6 @@ function text_to_key(label,text){
     case 'state' :
       for(let i = 0;i < key_state.length;i++){
         if(key_state[i].toLowerCase() == text) { return i }
-      }
-      break;
-    case 'pyro_a' || 'pyro_b' :
-      for(let i = 0;i < key_pyro.length;i++){
-        if(key_pyro[i].toLowerCase() == text) { return i }
       }
       break;
   }
@@ -56,9 +49,6 @@ function getValueFromKey(key, data) {
     case "counter":
       value = parseInt(data.counter, 10);
       break;
-    case "time":
-      value = parseInt(data.time, 10);
-      break;
     case "state":
       value = text_to_key('state',data.state);
       break;
@@ -68,38 +58,8 @@ function getValueFromKey(key, data) {
     case "gps_longitude":
       value = parseFloat(data.gps_longitude);
       break;
-    case "altitude":
-      value = parseFloat(data.altitude);
-      break;
-    case "pyro_a":
-      value = text_to_key('pyro',data.pyro_a);
-      break;
-    case "pyro_b":
-      value = text_to_key('pyro',data.pyro_b);
-      break;
-    case "temperature":
-      value = parseFloat(data.temperature);
-      break;
-    case "pressure":
-      value = parseFloat(data.pressure);
-      break;
-    case "acc_x":
-      value = parseFloat(data.acc_x);
-      break;
-    case "acc_y":
-      value = parseFloat(data.acc_y);
-      break;
-    case "acc_z":
-      value = parseFloat(data.acc_z);
-      break;
-    case "gyro_x":
-      value = parseFloat(data.gyro_x);
-      break;
-    case "gyro_y":
-      value = parseFloat(data.gyro_y);
-      break;
-    case "gyro_z":
-      value = parseFloat(data.gyro_z);
+    case "apogee":
+      value = parseFloat(data.apogee);
       break;
     case "last_ack":
       value = parseInt(data.last_ack, 10);
@@ -131,7 +91,7 @@ function getColorByState(state) {
 }
 /* Is value's label is text ot not */
 function isText(label){
-  if(label == 'state' || label == 'pyro_a' || label == 'pyro_b') { return 1; }
+  if(label == 'state') { return 1; }
   return 0;
 }
 
@@ -304,6 +264,8 @@ document.getElementById('addGraphBtn').addEventListener('click', () => {
 document.getElementById('autoAddGraphBtn').addEventListener('click', () => {
   for(let i = 0; i < allLabel.length; i++) {
     for(let j = 0; j < allLabel.length; j++) {
+      if(i === j) continue; // ไม่ต้องสร้างกราฟที่ x = y
+      if(isText(allLabel[i])) continue;
       createChart(container,{xLabel: allLabel[i], yLabel: allLabel[j]});
     }
   }
@@ -333,8 +295,7 @@ document.getElementById('addNumber_of_valueBtn').addEventListener('click', () =>
 socket.on('serial-data', (data) => {
   console.log('Received data:', data);
   document.getElementById('output').textContent =
-    `counter: ${data.counter} | time: ${data.time}s | state: ${data.state} | GPS: (${data.gps_latitude}, ${data.gps_longitude}) | altitude: ${data.altitude}m | pyro: (${data.pyro_a}, ${data.pyro_b}) | temperature: ${data.temperature}°C | pressure: ${data.pressure}hPa | acc: (${data.acc_x}, ${data.acc_y}, ${data.acc_z}) | gyro: (${data.gyro_x}, ${data.gyro_y}, ${data.gyro_z}) | last_ack: ${data.last_ack} | last_nack: ${data.last_nack}`;
-
+    `counter: ${data.counter} | state: ${data.state} | latitude: (${data.gps_latitude} | longitude: ${data.gps_longitude}) | apogee: ${data.apogee}m | last_ack: ${data.last_ack} | last_nack: ${data.last_nack}`;
 
   console.log(`Chart update: ${n_chart} charts`);
   saveChartData(`n_chart`, n_chart);

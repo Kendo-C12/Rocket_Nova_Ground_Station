@@ -108,7 +108,7 @@ waitForPort().then(port => {
       state: state,
       gps_latitude: parseFloat(gps_latitude),
       gps_longitude: parseFloat(gps_longitude),
-      altitude: parseFloat(altitude),
+      apogee: parseFloat(apogee),
       last_ack: parseInt(last_ack, 10),
       last_nack: parseInt(last_nack, 10)
     });

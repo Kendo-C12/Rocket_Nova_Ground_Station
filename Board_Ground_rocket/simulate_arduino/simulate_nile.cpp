@@ -1,66 +1,57 @@
 #include <Arduino.h>
 
-// int time;
+#define LED_PIN LED_BUILTIN
+#define MICROSECONDS(SECONDS) (SECONDS * 1E6)
+#define SEED 1759
 
-// void setup() {
-//   Serial.begin(9600);
-// }
+volatile uint8_t led_state = 0;
+void uart_tx(void);
 
-// void loop() {
-//   delay(1000); // Delay for 1 second to avoid flooding the serial output
-//   Serial.println("{\"0\": [1]}");
-// }
-String input;
+typedef struct {
+  uint8_t dev_id;
+  uint32_t counter;
+  float latitude;
+  float longitude;
+  float altitude;
+  float temperature;
+  float humidity;
+  float pressure;
+} data_t;
+
+data_t data = { 0 };
+
 void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  randomSeed(SEED);
   Serial.begin(115200);
-
 }
 
 void loop() {
-  // Example simulated values for the "0" list
-//   Serial.println(
-//     "{\"0\": [" +
-//     String(millis()) + "," +                       // Timestamp
-//     String(micros()) + "," +                       // Timestamp (microsecond)
-//     String(millis()) + "," +                       // Milliseconds since boot
-//     String(random(0, 500)) + "," +                  // Packet Counter
-//     "RUNNING," +                                    // Program State
-//     "NORMAL," +                                     // Pressure sensors mode
-//     "ENABLED," +                                    // IMU sensors mode
-//     String(13.7563 + random(-100, 100) / 10000.0, 6) + "," + // GPS Latitude
-//     String(100.5018 + random(-100, 100) / 10000.0, 6) + "," +// GPS Longitude
-//     String(150.0 + random(-50, 50) / 10.0, 2) + "," +        // Reference Altitude
-//     "1,0,0," +                                       // Pyro states
-//     "1,1,1," +                                       // Pyro continuity
-//     String(25.0 + random(-50, 50) / 10.0, 2) + "," + // MS#1 Temp
-//     String(1013.0 + random(-50, 50) / 100.0, 2) + "," + // MS#1 Pressure
-//     String(50.0 + random(-100, 100) / 10.0, 2) + "," + // MS#1 Altitude
-//     String(25.0 + random(-50, 50) / 10.0, 2) + "," + // MS#2 Temp
-//     String(1013.0 + random(-50, 50) / 100.0, 2) + "," + // MS#2 Pressure
-//     String(50.0 + random(-100, 100) / 10.0, 2) + "," + // MS#2 Altitude
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM42688 Accel X
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM42688 Accel Y
-//     String(9.80 + random(-10, 10) / 100.0, 2) + "," + // ICM42688 Accel Z
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM42688 Gyro X
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM42688 Gyro Y
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM42688 Gyro Z
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM20948 Accel X
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM20948 Accel Y
-//     String(9.80 + random(-10, 10) / 100.0, 2) + "," + // ICM20948 Accel Z
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM20948 Gyro X
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM20948 Gyro Y
-//     String(random(-10, 10) / 100.0, 2) + "," +      // ICM20948 Gyro Z
-//     String(45.0 + random(-50, 50) / 10.0, 1) + "," + // CPU Temp
-//     String(12.0 + random(-10, 10) / 10.0, 2) + "," + // Battery Voltage
-//     "ACK," +                                        // Last ACK
-//     "NACK" +                                        // Last NACK
-//     "]}"                                           // Close JSON array and object
-//   );
+  uart_tx();
+  delay(750);
+}
 
-//   Serial.println(input);
-//   if(Serial.available()) {
-//     input = Serial.readStringUntil('\n');
-//   }
-  Serial.println("[1]");
-  delay(1000);
+void uart_tx() {
+  String packet;
+  packet.reserve(100);
+  ++data.counter;
+  data.latitude = 13.f + (float)random(-5000, 5000) / 100000;
+  data.longitude = 100.f + (float)random(-5000, 5000) / 100000;
+  data.altitude += (float)random(-10, 100) / 10;
+
+  data.temperature = 25.f + (float)random(-50, 50) / 10;
+  data.humidity = 50.f + (float)random(-50, 50) / 10;
+  data.pressure = 1013.25f - (float)random(40, 100) / 10;
+
+  packet += String(data.dev_id) + ",";
+  packet += String(data.counter) + ",";
+  packet += String(data.latitude, 6) + ",";
+  packet += String(data.longitude, 6) + ",";
+  packet += String(data.altitude, 2) + ",";
+  packet += String(data.temperature, 2) + ",";
+  packet += String(data.humidity, 2) + ",";
+  packet += String(data.pressure, 2) + "\n";
+
+  Serial.print(packet);
+  digitalWrite(LED_PIN, led_state ^= 1);
 }

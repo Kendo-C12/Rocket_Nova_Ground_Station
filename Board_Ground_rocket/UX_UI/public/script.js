@@ -12,6 +12,32 @@ const table = document.getElementById("dataTable");
 
 const key_state = ["STARTUP","IDLE_SAFE","ARMED","PAD_PREOP","POWERED","COASTING","DROG_DEPL","DROG_DESC","MAIN_DEPL","MAIN_DESC","LANDED","REC_SAFE"];
 const allLabel = ["counter","state","gps_latitude","gps_longitude","apogee","last_ack","last_nack"];
+const output = document.getElementById('output_cmd');
+
+let autoScroll = true; // toggle state
+
+
+/* Render data */
+function renderData(data) {
+  
+
+  // append new line
+  const line = document.createElement("div");
+  line.textContent =
+    `counter: ${data.counter} | state: ${data.state} | latitude: (${data.gps_latitude} | longitude: ${data.gps_longitude}) | apogee: ${data.apogee}m | last_ack: ${data.last_ack} | last_nack: ${data.last_nack}`;
+  output.appendChild(line);
+
+  // keep only last 200 lines (optional, prevents memory bloat)
+  if (output.childNodes.length > 200) {
+    output.removeChild(output.firstChild);
+  }
+
+  // auto scroll if enabled
+  if (autoScroll) {
+    output.scrollTop = output.scrollHeight;
+  }
+}
+
 /* Length text */
 function length_text(label){
   switch(label){
@@ -332,8 +358,20 @@ socket.on('serial-data', (data) => {
 /* Cmd data */
 socket.on('cmd-data', (data) => {
   console.log('Received command data:', data);
-  document.getElementById('output_cmd').textContent =
-    `${data.cmd}`;
+  const line = document.createElement("div");
+  line.textContent =
+    `${data.cmd}`;  
+  output.appendChild(line);
+
+  // keep only last 200 lines (optional, prevents memory bloat)
+  if (output.childNodes.length > 200) {
+    output.removeChild(output.firstChild);
+  }
+
+  // auto scroll if enabled
+  if (autoScroll) {
+    output.scrollTop = output.scrollHeight;
+  }
 });
 
 /* Load Chart Data */

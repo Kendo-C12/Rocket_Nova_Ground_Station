@@ -58,7 +58,6 @@ waitForPort().then(port => {
 
   serial = new SerialPort({ path: port.path, baudRate: 115200 });
 
-  if (err) return console.error(err);
   parser = serial.pipe(new ReadlineParser({ delimiter: '\n' }));
 
   // โค้ดอื่นที่ต้องใช้ serial parser รันต่อที่นี่
@@ -146,7 +145,7 @@ io.on('connection', (socket) => {
 
     // คุณสามารถส่งคำสั่งนี้ออก serial port ได้ เช่น:
     if (serial && serial.writable) {
-      serial.write(`${msg}\n`);
+      serial.write(`cmd ${msg}\n`);
     }
     
   });
@@ -157,7 +156,7 @@ io.on('connection', (socket) => {
 db.run(`
   CREATE TABLE IF NOT EXISTS sensor (
     counter INTEGER,
-    time TEXT,
+    times TEXT,
     state TEXT,
     gps_latitude REAL,
     gps_longitude REAL,

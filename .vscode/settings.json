@@ -95,10 +95,5 @@
   "C_Cpp_Runner.useLeakSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "liveServer.settings.port": 5501,
-  "files.associations": {
-    "lib_xcore": "cpp",
-    "cmath": "cpp"
-  }
+  "C_Cpp_Runner.msvcSecureNoWarnings": false
 }

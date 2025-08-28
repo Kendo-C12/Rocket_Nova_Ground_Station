@@ -1,0 +1,16 @@
+{
+    "plots": [
+        {
+            "type": "bar",
+            "x": ["January", "February", "March", "April", "May"],
+            "y": [20, 14, 23, 25, 22],
+            "marker": {
+                "color": "rgba(55,128,191,0.7)",
+                "line": {
+                    "color": "rgba(55,128,191,1.0)",
+                    "width": 2
+                }
+            }
+        }
+    ],
+}

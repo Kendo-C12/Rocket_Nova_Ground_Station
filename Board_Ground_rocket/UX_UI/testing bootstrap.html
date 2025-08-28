@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Serial Port Selector</title>
+</head>
+<body>
+  <h3>Select Serial Port</h3>
+  <button id="requestPort">Request Port</button>
+  <select id="portList"></select>
+  <button id="connectPort">Connect</button>
+
+  <script>
+
+async function listAvailablePorts() {
+  try {
+    // Get all previously granted ports
+    const ports = await navigator.serial.getPorts();
+
+    if (ports.length === 0) {
+      console.log("No ports available. Requesting a new one...");
+      
+      // Ask user to select a port
+      const newPort = await navigator.serial.requestPort();
+      ports.push(newPort);
+    }
+
+    // Display available ports
+    ports.forEach((port, index) => {
+      console.log(`Port ${index + 1}:`, port.getInfo());
+    });
+
+    return ports; // Return the list of ports
+  } catch (err) {
+    console.error("Error listing ports:", err);
+    return [];
+  }
+}
+
+    const portList = document.getElementById("portList");
+    let ports = [];
+
+    async function refreshPortList() {
+      portList.innerHTML = ""; // clear old list
+      ports = await navigator.serial.getPorts();
+
+      if (ports.length === 0) {
+        let option = document.createElement("option");
+        option.text = "No ports available";
+        portList.add(option);
+      } else {
+        ports.forEach((port, index) => {
+          const info = port.getInfo();
+          let option = document.createElement("option");
+          option.value = index;
+          option.text = `Port ${index + 1} (Vendor: ${info.usbVendorId || "?"}, Product: ${info.usbProductId || "?"})`;
+          portList.add(option);
+        });
+      }
+    }
+
+    document.getElementById("requestPort").addEventListener("click", async () => {
+      try {
+        const newPort = await navigator.serial.requestPort();
+        ports.push(newPort);
+        await refreshPortList();
+      } catch (err) {
+        console.error("Port request canceled or failed:", err);
+      }
+    });
+
+    document.getElementById("connectPort").addEventListener("click", async () => {
+      const selectedIndex = portList.value;
+      if (ports[selectedIndex]) {
+        try {
+          await ports[selectedIndex].open({ baudRate: 9600 });
+          alert("Connected to port!");
+        } catch (err) {
+          console.error("Failed to open port:", err);
+        }
+      } else {
+        alert("No port selected!");
+      }
+    });
+
+    // Load existing ports on page load
+    refreshPortList();
+    listAvailablePorts();
+  </script>
+</body>
+</html>
